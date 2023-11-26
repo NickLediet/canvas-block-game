@@ -1,20 +1,23 @@
 import './style.css'
+import Point from './classes/Point'
+import {
+    PRIMARY_COLOUR,
+    SECONDARY_COLOUR,
+    PLAYER_COLOUR
+} from './constants/index'
+import GameBoardManager from './classes/GameBoardManager'
 
-const PRIMARY_COLOUR = '#8DA05E'
-const SECONDARY_COLOUR = '#E9EDE0'
-const PLAYER_COLOUR = '#2A2C41'
-const POINT_COLOUR = '#FDBF50'
-const gameSpaceCanvas = document.querySelector<HTMLCanvasElement>('#game-space')
-const gameSpaceCanvasContext = gameSpaceCanvas?.getContext('2d') as CanvasRenderingContext2D
-
-const height = gameSpaceCanvas?.height || 0
-const width = gameSpaceCanvas?.width || 0
-const pixelSize = parseInt(gameSpaceCanvas?.dataset?.pixelSize as string)
-const numberOfColums = width / pixelSize
-const numberOfRows = height / pixelSize
+const {
+    canvasContext,
+    height,
+    width,
+    numberOfColums,
+    numberOfRows,
+    pixelSize
+} = GameBoardManager.getInstance()
 let isFirstLoad = true
 
-function renderTiles(gameSpaceCanvasContext: CanvasRenderingContext2D) {
+function renderTiles(canvasContext: CanvasRenderingContext2D) {
     if(height % pixelSize !== 0 || width % pixelSize !== 0) throw new Error('Provide a valid pixel size')
     const getFillColour = (i: number, j: number) => {
         const condition = j % 2 === 0
@@ -29,9 +32,9 @@ function renderTiles(gameSpaceCanvasContext: CanvasRenderingContext2D) {
             const y = i * pixelSize
             const fillColour = getFillColour(i, j)
             
-            if(gameSpaceCanvasContext) {
-                gameSpaceCanvasContext.fillStyle = fillColour
-                gameSpaceCanvasContext.fillRect(x, y, pixelSize, pixelSize)
+            if(canvasContext) {
+                canvasContext.fillStyle = fillColour
+                canvasContext.fillRect(x, y, pixelSize, pixelSize)
             }
         }
     }
@@ -40,16 +43,16 @@ function renderTiles(gameSpaceCanvasContext: CanvasRenderingContext2D) {
 class Player {
     private fillColour: string = PLAYER_COLOUR
     private pointManager: PointManager
-    private gameSpaceCanvasContext: CanvasRenderingContext2D
+    private canvasContext: CanvasRenderingContext2D
     public x: number = 0
     public y: number = 0
 
     constructor(
         pointManager: PointManager, 
-        gameSpaceCanvasContext: CanvasRenderingContext2D
+        canvasContext: CanvasRenderingContext2D
     ) {
         this.pointManager = pointManager
-        this.gameSpaceCanvasContext = gameSpaceCanvasContext
+        this.canvasContext = canvasContext
     }
     
     init() {
@@ -59,8 +62,8 @@ class Player {
     }
     
     render() {
-        this.gameSpaceCanvasContext.fillStyle = this.fillColour
-        this.gameSpaceCanvasContext.fillRect(this.x, this.y, pixelSize, pixelSize)
+        this.canvasContext.fillStyle = this.fillColour
+        this.canvasContext.fillRect(this.x, this.y, pixelSize, pixelSize)
         this.pointManager.tryToScore(this.x, this.y)
     }
 
@@ -120,27 +123,7 @@ class PlayerController {
     }
 }
 
-class Point {
-    private fillColour: string = POINT_COLOUR
-    private gameSpaceCanvasContext: CanvasRenderingContext2D
-    public x: number
-    public y: number
 
-    constructor(
-        x:number, 
-        y:number, 
-        gameSpaceCanvasContext: CanvasRenderingContext2D
-    ) {
-        this.x = x
-        this.y = y
-        this.gameSpaceCanvasContext = gameSpaceCanvasContext
-    }
-
-    render() {
-        this.gameSpaceCanvasContext.fillStyle = this.fillColour
-        this.gameSpaceCanvasContext.fillRect(this.x, this.y, pixelSize, pixelSize)
-    }
-}
 
 const randomMultipleInRange = 
     (multipleOf: number, max: number) => Math.floor(Math.random() * max) * multipleOf
@@ -188,21 +171,21 @@ class PointManager {
     private timeToLive: number = 3000
     private points: PointsDictionary = {}
     private gameManager: GameManager
-    private gameSpaceCanvasContext: CanvasRenderingContext2D
+    private canvasContext: CanvasRenderingContext2D
     
     constructor(
         gameManager: GameManager, 
-        gameSpaceCanvasContext: CanvasRenderingContext2D
+        canvasContext: CanvasRenderingContext2D
     ) {
         this.gameManager = gameManager
-        this.gameSpaceCanvasContext = gameSpaceCanvasContext
+        this.canvasContext = canvasContext
     }
     
     createRandomPoint() {
         const randomColumInRange = randomMultipleInRange(pixelSize, numberOfColums)
         const randomRowInRange = randomMultipleInRange(pixelSize, numberOfColums)
 
-        const point = new Point(randomColumInRange, randomRowInRange, this.gameSpaceCanvasContext)
+        const point = new Point(randomColumInRange, randomRowInRange, this.canvasContext)
         this.points[this.getPointKey(point.x, point.y)] = point
 
         setTimeout(() => {
@@ -241,8 +224,8 @@ class PointManager {
 }
 
 const gameManager = new GameManager()
-const pointManager = new PointManager(gameManager, gameSpaceCanvasContext)
-const player = new Player(pointManager, gameSpaceCanvasContext)
+const pointManager = new PointManager(gameManager, canvasContext)
+const player = new Player(pointManager, canvasContext)
 new PlayerController(player)
 
 // Bind reset button
@@ -253,7 +236,7 @@ let framesRendered: number = 0
 const FRAMES_UNTIL_POINT = 15
 function main() {
     ++framesRendered
-    gameSpaceCanvasContext.beginPath()
+    canvasContext.beginPath()
 
     if(isFirstLoad) {
         pointManager.init()
@@ -262,7 +245,7 @@ function main() {
         isFirstLoad = false
     }
 
-    renderTiles(gameSpaceCanvasContext)
+    renderTiles(canvasContext)
 
     if(framesRendered % FRAMES_UNTIL_POINT === 0) {
         pointManager.createRandomPoint()
@@ -270,7 +253,7 @@ function main() {
 
     pointManager.render()
     player.render()
-    gameSpaceCanvasContext.closePath()
+    canvasContext.closePath()
     
 }
 setInterval(main, 60)
