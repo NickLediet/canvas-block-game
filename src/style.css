@@ -1,0 +1,32 @@
+:root {
+  --primary-colour: #8DA05E;
+  --secondary-colour: #E9EDE0;
+  --player-colour: #2A2C41;
+  --point-colour: #FDBF50;
+}
+
+body {
+  height: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+span {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+canvas {
+  border: 2px solid var(--primary-colour);
+  border-radius: 5px;
+  display: block;
+  margin: 0 auto;
+  margin-top: -2rem;
+}
+
+.restart-button {
+  margin: 2rem auto;
+  display: block;
+}
