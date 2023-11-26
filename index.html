@@ -43,7 +43,10 @@
     </style>
 </head>
 <body>
-    <span class="points-wrapper">Points: <span class="number-of-points">0</span></span> 
+    <span class="points-wrapper">
+        Points: <span class="number-of-points">0</span>, 
+        Missed Points: <span class="missed-points">0</span>
+    </span> 
    <canvas 
         id="game-space" 
         height="550" 
@@ -177,9 +180,11 @@
         class GameManager {
             pointsPerScore = 20
             points = 0
+            pointsMissed = 0
 
             init() {
                 this.points = 0
+                this.pointsMissed = 0
                 this.updatePoints()
             }
 
@@ -191,11 +196,18 @@
             updatePoints() {
                 const $numberOfPoints = document.querySelector('.number-of-points')
                 $numberOfPoints.innerHTML = this.points
+                const $pointsMissed = document.querySelector('.missed-points')
+                $pointsMissed.innerHTML = this.pointsMissed
+            }
+
+            missedPoint() {
+                this.pointsMissed -= this.pointsPerScore
+                this.updatePoints()
             }
         }
 
         class PointManager {
-            timeToLive = 2000;
+            timeToLive = 3000;
             points = {};
            
             constructor(gameManager) {
@@ -209,7 +221,10 @@
                 const point = new Point(randomColumInRange, randomRowInRange)
                 this.points[this.getPointKey(point.x, point.y)] = point
 
-                setTimeout(() => this.removePoint(point), this.timeToLive)
+                setTimeout(() => {
+                    this.removePoint(point)
+                    this.gameManager.missedPoint()
+                }, this.timeToLive)
             }
 
             init() {
