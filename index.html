@@ -6,10 +6,32 @@
     <title>Tiling experiment</title>
 
     <style>
+        :root {
+            --primary-colour: #2A2C41,
+            --secondary-colour: #2A2C41,
+            --player-colour: #2A2C41
+        }
+
+        body {
+            height: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
         canvas {
             /* background: green; */
-            border: 2px solid red;
+            border: 2px solid var(--primary-colour);
             border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+            margin-top: -2rem;
+        }
+
+        .restart-button {
+            margin: 2rem auto;
+            display: block;
         }
 
     </style>
@@ -20,23 +42,30 @@
         height="250" 
         width="250"
         data-pixel-size="10"></canvas> 
-
+    <button class="restart-button">Restart</button>
    <script>
+        const PRIMARY_COLOUR = '#8DA05E'
+        const SECONDARY_COLOUR = '#E9EDE0'
+        const PLAYER_COLOUR = '#2A2C41'
         const gameSpaceCanvas = document.querySelector('#game-space')
         const gameSpaceCanvasContext = gameSpaceCanvas.getContext('2d')
         const { height, width } = gameSpaceCanvas
-        const { pixelSize } = gameSpaceCanvas.dataset
+        const pixelSize = parseInt(gameSpaceCanvas.dataset.pixelSize)
         const numberOfColums = width / pixelSize
         const numberOfRows = height / pixelSize
-        let firstLoad = true
+        let isFirstLoad = true
+
+        // Bind reset button
+        document.querySelector('.restart-button')
+            .addEventListener('click', () => (isFirstLoad = true))
 
         function renderTiles() {
             if(height % pixelSize !== 0 || width % pixelSize !== 0) throw new Error('Provide a valid pixel size')
             const getFillColour = (i, j) => {
                 const condition = j % 2 === 0
 
-                if(i % 2 === 0) return condition ? 'red': 'white'
-                return condition ? 'white': 'red'
+                if(i % 2 === 0) return condition ? PRIMARY_COLOUR: SECONDARY_COLOUR 
+                return condition ? SECONDARY_COLOUR : PRIMARY_COLOUR
             }
 
             for(let i = 0; i <= numberOfRows; i++) {
@@ -53,11 +82,10 @@
         }
 
         const Player = {
-            fillColour: 'black',
-            isFirstLoad: true,
+            fillColour: PLAYER_COLOUR,
             
             render() {
-                if (this.isFirstLoad) {
+                if (isFirstLoad) {
                     const middleValue = ((numberOfColums - 1) / 2 ) 
                     this.x = middleValue * pixelSize
                     this.y = middleValue * pixelSize
@@ -65,36 +93,69 @@
 
                 gameSpaceCanvasContext.fillStyle = this.fillColour
                 gameSpaceCanvasContext.fillRect(this.x, this.y, pixelSize, pixelSize)
+
+                isFirstLoad = false
             }
 
         }
 
         const PlayerController = {
             register() {
-
+                document.addEventListener('keydown', this.listener.bind(this))
             },
 
-            up() {
-
+            listener({ key }) {
+                switch (key) {
+                    case 'w':
+                        this.up()
+                        break
+                    case 'd':
+                        this.right()
+                        break
+                    case 's':
+                        this.down()
+                        break
+                    case 'a': 
+                        this.left()
+                        break
+                }
             },
 
-            down() {},
-
-            left() {},
-
-            right() {
-
+            up: () => {
+                if (Player.y > 0) {
+                    Player.y -= pixelSize
+                }
             },
+
+            down: () => {
+                if(Player.y < height) {
+                    Player.y += pixelSize
+                }
+            },
+
+            left: () => {
+                if (Player.x > 0) {
+                    Player.x -= pixelSize
+                }
+            },
+
+            right: () => {
+                if(Player.y < width) {
+                    Player.x += pixelSize
+                }
+            }
         }
+
+        PlayerController.register()
 
         function main() {
             gameSpaceCanvasContext.beginPath()
             renderTiles()
             Player.render()
             gameSpaceCanvasContext.closePath()
+            isFirstLoad = false
         }
-        main()
-        // setTimeout(main, 1000)
+        setInterval(main, 60)
    </script>
 </body>
 </html>
