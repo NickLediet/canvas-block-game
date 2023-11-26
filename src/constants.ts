@@ -1,5 +1,3 @@
-import './style.css'
-
 const PRIMARY_COLOUR = '#8DA05E'
 const SECONDARY_COLOUR = '#E9EDE0'
 const PLAYER_COLOUR = '#2A2C41'
@@ -24,6 +22,7 @@ function renderTiles(gameSpaceCanvasContext: CanvasRenderingContext2D) {
     }
 
     for(let i = 0; i <= numberOfRows; i++) {
+        // Draw colums
         for(let j = 0; j <= numberOfColums; j++) {
             const x = j * pixelSize
             const y = i * pixelSize
