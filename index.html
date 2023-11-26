@@ -119,6 +119,7 @@
                         this.left()
                         break
                 }
+                console.log(Player)
             },
 
             up: () => {
@@ -128,7 +129,7 @@
             },
 
             down: () => {
-                if(Player.y < height) {
+                if(Player.y < height - pixelSize) {
                     Player.y += pixelSize
                 }
             },
@@ -140,7 +141,7 @@
             },
 
             right: () => {
-                if(Player.y < width) {
+                if(Player.x < width - pixelSize) {
                     Player.x += pixelSize
                 }
             }
