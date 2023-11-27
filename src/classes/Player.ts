@@ -3,11 +3,8 @@ import GameBoardManager from './GameBoardManager'
 import PointManager from './PointManager'
 
 const {
-    height,
-    width,
     pixelSize,
     numberOfColums,
-    numberOfRows,
     canvasContext
 } = GameBoardManager.getInstance()
 

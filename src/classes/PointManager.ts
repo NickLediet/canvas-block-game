@@ -4,11 +4,8 @@ import GameBoardManager from './GameBoardManager'
 import GameManager from './GameManager'
 
 const {
-    height,
-    width,
     pixelSize,
     numberOfColums,
-    numberOfRows,
     canvasContext
 } = GameBoardManager.getInstance()
 
